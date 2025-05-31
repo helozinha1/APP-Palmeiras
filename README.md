@@ -27,25 +27,24 @@ Para rodar este aplicativo, você precisará ter o Node.js e o npm instalados em
 
 ### Passos de Configuração
 
-1.  **Exclua a pasta `PalmeirasApp` existente (se houver):**
-    Para garantir que você tenha a estrutura de projeto correta (template `blank`), se a pasta `c:\Vs - Helo\PalmeirasApp` já existe, **apague-a completamente** antes de prosseguir.
+1.  **Exclua a pasta do seu aplicativo existente (se houver):**
+    Para garantir que você tenha a estrutura de projeto correta (template `blank`), se a pasta do seu aplicativo já existe, **apague-a completamente** antes de prosseguir.
 
 2.  **Crie o projeto Expo com o template `blank`:**
-    Abra um terminal, navegue até o diretório `c:\Vs - Helo`, e execute o comando abaixo:
+    Abra um terminal e navegue até o diretório onde você deseja criar seu projeto (por exemplo, `C:\Projetos`). Em seguida, execute o comando abaixo:
 
     ```bash
-    cd "c:\Vs - Helo"
     npx create-expo-app PalmeirasApp --template blank
     ```
     Quando perguntar **"Which package manager...?"**, escolha **`npm`** e pressione `Enter`.
 
 3.  **Navegue para a pasta do novo aplicativo:**
     ```bash
-    cd "c:\Vs - Helo\PalmeirasApp"
+    cd PalmeirasApp
     ```
 
 4.  **Substitua o conteúdo do `App.js`:**
-    Abra o arquivo `c:\Vs - Helo\PalmeirasApp\App.js` no seu editor de código e **substitua TODO o conteúdo** dele pelo código completo que você está utilizando (incluindo o logo e a lógica de fetch).
+    Abra o arquivo `App.js` localizado na **pasta do seu aplicativo** no seu editor de código e **substitua TODO o conteúdo** dele pelo código completo que você está utilizando (incluindo o logo e a lógica de fetch).
 
     **🚨 ATENÇÃO: Verifique o IP na linha do `fetch`!**
     Dentro do `App.js`, procure a linha que faz a requisição à API e certifique-se de que o endereço IP corresponde ao IP atual da sua máquina na rede local (ex: `http://192.168.15.28:3000/jogadores`). Se o seu IP mudar, você precisará atualizar esta linha.
@@ -63,8 +62,7 @@ Para que o aplicativo funcione corretamente, tanto a API quanto o aplicativo pre
 
 ### 1. Iniciar a API (No Primeiro Terminal)
 
-Certifique-se de que sua API está rodando. Se não estiver, abra um terminal, navegue até a pasta `PalmeirasAPI` e execute:
+Certifique-se de que sua API está rodando. Se não estiver, abra um terminal, navegue até a pasta da **sua API** e execute:
 
 ```bash
-cd "c:\Vs - Helo\PalmeirasAPI"
 node index.js
