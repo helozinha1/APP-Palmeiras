@@ -11,11 +11,8 @@ import {
 } from 'react-native';
 
 // Componente funcional para renderizar um único item da lista de jogadores.
-// Recebe um objeto 'jogador' como prop.
 const JogadorItem = ({ jogador }) => (
   <View style={styles.jogadorContainer}>
-    {/* Renderiza a foto do jogador se a URL estiver disponível. */}
-    {/* Caso contrário, mostra um placeholder com um ponto de interrogação. */}
     {jogador.foto ? (
       <Image source={{ uri: jogador.foto }} style={styles.jogadorFoto} />
     ) : (
@@ -24,11 +21,8 @@ const JogadorItem = ({ jogador }) => (
       </View>
     )}
     <View style={styles.jogadorInfo}>
-      {/* Exibe o nome do jogador. */}
       <Text style={styles.jogadorNome}>{jogador.nome}</Text>
-      {/* Exibe a posição do jogador. */}
       <Text style={styles.jogadorDetalhe}>Posição: {jogador.posicao}</Text>
-      {/* Exibe o número da camisa do jogador. */}
       <Text style={styles.jogadorDetalhe}>Número: {jogador.numero}</Text>
     </View>
   </View>
@@ -36,154 +30,133 @@ const JogadorItem = ({ jogador }) => (
 
 // Componente principal do aplicativo.
 export default function App() {
-  // Estado para armazenar a lista de jogadores. Inicialmente um array vazio.
   const [jogadores, setJogadores] = useState([]);
-  // Estado para controlar o indicador de carregamento. Inicialmente true (carregando).
   const [loading, setLoading] = useState(true);
-  // Estado para armazenar mensagens de erro. Inicialmente nulo.
   const [error, setError] = useState(null);
 
-  // useEffect é um hook que executa efeitos colaterais em componentes funcionais.
-  // O array vazio [] como segundo argumento garante que este efeito
-  // seja executado apenas uma vez, após a montagem inicial do componente.
   useEffect(() => {
-    // Função assíncrona para buscar os dados dos jogadores da API.
     const fetchJogadores = async () => {
       try {
-        // --- PONTO CRÍTICO: USE O SEU IP CORRETO AQUI! ---
-        //
-        // Você me informou que o seu IP é 192.168.15.28.
-        // Se este IP mudar, você precisará atualizar esta linha.
-        const response = await fetch('http://192.168.15.28:3000/jogadores'); // <--- SEU IP FOI INSERIDO AQUI!
+        // --- PONTO CRÍTICO: SEU IP DEVE ESTAR AQUI! ---
+        // Certifique-se de que este é o IP atual da sua máquina na rede local.
+        const response = await fetch('http://192.168.15.28:3000/jogadores'); // <-- VERIFIQUE ESTA LINHA!
 
-        // Verifica se a resposta da requisição foi bem-sucedida (status HTTP 2xx).
         if (!response.ok) {
-          // Se não for bem-sucedida, lança um erro.
           throw new Error(`Erro HTTP! status: ${response.status}`);
         }
-        // Converte o corpo da resposta para um objeto JavaScript (assumindo que a API retorna JSON).
         const data = await response.json();
-        // Atualiza o estado 'jogadores' com os dados recebidos.
         setJogadores(data);
       } catch (err) {
-        // Captura e trata qualquer erro que ocorra durante a requisição.
         console.error('Erro ao buscar jogadores:', err);
         setError(
           'Não foi possível carregar os jogadores. Verifique a conexão com a API e o IP.'
         );
-        // Exibe um alerta para o usuário.
         Alert.alert(
           'Erro na Conexão',
           'Não foi possível carregar os jogadores. Por favor, verifique se a API está rodando e se o IP no App.js está correto e acessível.'
         );
       } finally {
-        // Independentemente de sucesso ou erro, define 'loading' como false
-        // para esconder o indicador de carregamento.
-        setLoading(false);
+        // No finally, apenas setamos que o carregamento dos dados terminou,
+        // mas o estado 'loading' só será false após o tempo mínimo.
       }
     };
 
-    // Chama a função para buscar os jogadores.
-    fetchJogadores();
-  }, []); // O array vazio [] significa que este efeito só roda uma vez na montagem.
+    // Adiciona um pequeno atraso mínimo para a tela de carregamento ser visível
+    const MIN_LOADING_TIME = 1500; // 1.5 segundos
+    const startTime = Date.now();
 
-  // Lógica de renderização condicional:
-  // 1. Se estiver carregando, mostra um indicador de atividade.
+    fetchJogadores().then(() => {
+      const elapsedTime = Date.now() - startTime;
+      if (elapsedTime < MIN_LOADING_TIME) {
+        setTimeout(() => setLoading(false), MIN_LOADING_TIME - elapsedTime);
+      } else {
+        setLoading(false);
+      }
+    });
+
+  }, []);
+
+  // Lógica de renderização da tela de carregamento ou do conteúdo principal
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Jogadores do Palmeiras</Text>
-        </View>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#004d00" />
-          <Text style={styles.loadingText}>Carregando jogadores...</Text>
-        </View>
+      <SafeAreaView style={styles.loadingScreenContainer}>
+        <Image
+          source={{ uri: 'https://www.palmeiras.com.br/wp-content/themes/foursys-palmeiras/assets/images/logo-palmeiras.png' }}
+          style={styles.loadingLogo}
+        />
+        <ActivityIndicator size="large" color="#fff" />
+        <Text style={styles.loadingText}>Acesso Permitido</Text>
       </SafeAreaView>
     );
   }
 
-  // 2. Se houver um erro, mostra uma mensagem de erro.
   if (error) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Jogadores do Palmeiras</Text>
-        </View>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
+      <SafeAreaView style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
       </SafeAreaView>
     );
   }
 
-  // 3. Se não estiver carregando e não houver erro, mostra a lista de jogadores.
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Jogadores do Palmeiras</Text>
+        <Text style={styles.headerTitle}>Lista de Jogadores</Text>
       </View>
-      {/* FlatList é um componente otimizado para renderizar listas longas. */}
       <FlatList
-        data={jogadores} // Os dados a serem renderizados.
-        keyExtractor={(item) => item.id} // Função para extrair uma chave única para cada item.
-        renderItem={({ item }) => <JogadorItem jogador={item} />} // Função para renderizar cada item.
-        contentContainerStyle={styles.listContent} // Estilos para o contêiner do conteúdo da lista.
+        data={jogadores}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <JogadorItem jogador={item} />}
+        contentContainerStyle={styles.listContent}
       />
     </SafeAreaView>
   );
 }
 
-// Objeto StyleSheet para definir os estilos dos componentes.
-// É similar ao CSS, mas usa sintaxe JavaScript (camelCase para propriedades).
 const styles = StyleSheet.create({
   safeArea: {
-    flex: 1, // Ocupa todo o espaço disponível.
-    backgroundColor: '#006400', // Verde escuro para a área segura (topo e base da tela).
+    flex: 1,
+    backgroundColor: '#006400',
   },
   header: {
-    backgroundColor: '#004d00', // Verde mais escuro para o cabeçalho.
-    padding: 15,
+    backgroundColor: '#004d00',
+    paddingTop: 15,
+    paddingBottom: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#003300',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff', // Texto branco.
   },
   listContent: {
     paddingVertical: 10,
     paddingHorizontal: 15,
   },
   jogadorContainer: {
-    flexDirection: 'row', // Organiza os itens em linha (foto e info lado a lado).
-    backgroundColor: '#f0f0f0', // Fundo cinza claro para cada item do jogador.
+    flexDirection: 'row',
+    backgroundColor: '#f0f0f0',
     padding: 15,
-    marginVertical: 8, // Espaçamento vertical entre os itens.
-    borderRadius: 10, // Cantos arredondados.
-    alignItems: 'center', // Alinha itens verticalmente ao centro.
-    shadowColor: '#000', // Propriedades para sombra (iOS).
+    marginVertical: 8,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    elevation: 3, // Propriedade para sombra (Android).
+    elevation: 3,
   },
   jogadorFoto: {
     width: 70,
     height: 70,
-    borderRadius: 35, // Metade da largura/altura para fazer um círculo.
+    borderRadius: 35,
     marginRight: 15,
-    backgroundColor: '#ccc', // Cor de fundo enquanto a imagem carrega.
+    backgroundColor: '#ccc',
   },
   jogadorFotoPlaceholder: {
     width: 70,
     height: 70,
     borderRadius: 35,
     marginRight: 15,
-    backgroundColor: '#a0a0a0', // Fundo cinza escuro para o placeholder.
+    backgroundColor: '#a0a0a0',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -193,7 +166,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   jogadorInfo: {
-    flex: 1, // Ocupa o restante do espaço disponível no contêiner.
+    flex: 1,
   },
   jogadorNome: {
     fontSize: 20,
@@ -204,16 +177,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  loadingContainer: {
+  // ESTILO PARA O TÍTULO "Lista de Jogadores" - MAIS BONITO
+  headerTitle: {
+    fontSize: 32, // Aumentado para 32 (era 28)
+    fontWeight: 'bold',
+    color: '#fff',
+    // Adicionando sombra ao texto
+    textShadowColor: 'rgba(0, 0, 0, 0.75)', // Cor da sombra (preto com 75% de opacidade)
+    textShadowOffset: { width: -1, height: 1 }, // Deslocamento da sombra
+    textShadowRadius: 10, // Raio do desfoque da sombra
+    letterSpacing: 2, // Espaçamento entre as letras
+  },
+  // Fim do estilo para o título
+  loadingScreenContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#004d00',
+  },
+  loadingLogo: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 20,
   },
   loadingText: {
     marginTop: 10,
-    fontSize: 18,
-    color: '#004d00',
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   errorContainer: {
     flex: 1,
